@@ -26,24 +26,29 @@
 
     <div class="row form-group">
       <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">Service</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.serviceCode }}
-      </div>
-
-      <div class="col-sm-12 col-md-1 form-label">
         <label class="form-control-static">Environment</label>
       </div>
       <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.environmentName }}
+        {{new-select
+          class="form-control"
+          content=environmentOptions
+          optionLabelPath='name'
+          optionValuePath='value'
+          value=model.%%DRIVERNAME%%Config.environmentName
+        }}
       </div>
 
       <div class="col-sm-12 col-md-1 form-label">
         <label class="form-control-static">Network</label>
       </div>
       <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.networkId }}
+      {{new-select
+        class="form-control"
+        content=networkOptions
+        optionLabelPath='name'
+        optionValuePath='value'
+        value=model.%%DRIVERNAME%%Config.networkId
+      }}
       </div>
     </div>
 
@@ -56,7 +61,13 @@
         <label class="form-control-static">Template</label>
       </div>
       <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.template }}
+        {{new-select
+          class="form-control"
+          content=templateOptions
+          optionLabelPath='name'
+          optionValuePath='value'
+          value=model.%%DRIVERNAME%%Config.template
+        }}
       </div>
 
       <div class="col-sm-12 col-md-1 form-label">
