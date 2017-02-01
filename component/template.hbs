@@ -1,35 +1,142 @@
 <section class="horizontal-form">
-  <div class="container-fluid">
-    {{!-- This partial contains the quantity, name, and description fields --}}
-    {{partial "host/add-common"}}
-
-    <div class="over-hr r-mt20 r-mb20">
-      <span>My Skeleton Driver</span>
+  {{#if firstPage}}
+    <div class="over-hr r-mb20">
+      <span>credentials</span>
     </div>
 
-    {{!-- An example input option --}}
     <div class="row">
       <div class="col-sm-12 col-md-2 form-label">
-        <label class="form-control-static">Size</label>
+        <label class="form-control-static">API Key</label>
       </div>
-      <div class="col-sm-12 col-md-4">
+      <div class="col-sm-12 col-md-10">
+        {{ input type="password" class="form-control" value=model.%%DRIVERNAME%%Config.apiKey }}
+      </div>
+    </div>
+
+    <div class="footer-actions">
+      <button {{ action "nextPage" }} class="btn btn-primary">Next: Configure instance</button>
+      <button {{ action "cancel" }} class="btn btn-link">{{ t "generic.cancel" }}</button>
+    </div>
+  {{else}}
+    {{ partial "host/add-common" }}
+
+    <div class="over-hr r-mt20 r-mb20">
+      <span>deployment</span>
+    </div>
+
+    <div class="row form-group">
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Service</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.serviceCode }}
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Environment</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.environmentName }}
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Network</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.networkId }}
+      </div>
+    </div>
+
+    <div class="over-hr r-mt20 r-mb20">
+      <span>instance</span>
+    </div>
+
+    <div class="row form-group">
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Template</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.template }}
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">SSH User</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.sshUser }}
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Use Private IP</label>
+      </div>
+      <div class="col-sm-12 col-md-3 form-control-static">
+        {{ input type="checkbox" checked=model.%%DRIVERNAME%%Config.usePrivateIp }}
+      </div>
+    </div>
+
+    <div class="row form-group">
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Compute Offering</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.computeOffering }}
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">vCPUs</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.cpuCount }}
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">RAM</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
         <div class="input-group">
-          {{input type="text"
-            class="form-control"
-            value=model.%%DRIVERNAME%%Config.size
-          }}
+          {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.memoryMb }}
           <span class="input-group-addon">MB</span>
         </div>
       </div>
     </div>
 
-    {{!-- This partial contains the Labels and Advanced Options fields --}}
-    {{partial "host/add-options"}}
-  </div>
+    <div class="over-hr r-mt20 r-mb20">
+      <span>storage</span>
+    </div>
 
-  {{!-- This component shows errors produced by validate() in the component --}}
-  {{top-errors errors=errors}}
+    <div class="row form-group">
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Additional Disk (optional)</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.additionalDiskOffering }}
+      </div>
 
-  {{!-- This component shows the Create and Cancel buttons --}}
-  {{save-cancel save="save" cancel="cancel"}}
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Size</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        <div class="input-group">
+          {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.additionalDiskSizeGb }}
+          <span class="input-group-addon">GB</span>
+        </div>
+      </div>
+
+      <div class="col-sm-12 col-md-1 form-label">
+        <label class="form-control-static">Performance</label>
+      </div>
+      <div class="col-sm-12 col-md-3">
+        <div class="input-group">
+          {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.additionalDiskIops }}
+          <span class="input-group-addon">IOPS</span>
+        </div>
+      </div>
+    </div>
+
+    {{ partial "host/add-options" }}
+    {{ save-cancel save="save" cancel="cancel" }}
+  {{/if}}
+
+{{!-- This component shows errors produced by validate() in the component --}}
+{{top-errors errors=errors}}
 </section>
