@@ -67,29 +67,113 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
             .map(function (env) {
               return {
                 name: env.serviceConnection.serviceCode + ' / ' + env.name,
-                value: env.id
+                value: env.name
               };
             }));
+          if (this.get('environmentOptions').length > 0) {
+             this.set('model.%%DRIVERNAME%%Config.environmentName', this.get('environmentOptions')[0].value);
+          }
           this.set('firstPage', false);
         }.bind(this));
       }
     },
 
-    // TODO: make these computed properties? ie _ember.default.computed(...)
-    networkOptions: _ember.default.computed('', function () {
-      // TODO: return the networks in response to an env change (either using ember.computed or like environmentNameChanged below)
-      return [{name: 'holy moly batman', value: 'asdfadf'}];
-    }),
-    templateOptions: [],
-    environmentOptions: [],
-    diskOfferingOptions: [],
-    computeOfferingOptions: [],
-
-    environmentNameChanged: function () {
-      alert('adfasdf');
+    environmentChange: function () {
       var serviceCode = this.servicesByEnvironmentName[this.get('model.%%DRIVERNAME%%Config.environmentName')];
       this.set('model.%%DRIVERNAME%%Config.serviceCode', serviceCode);
+
+      this.updateTiersOnEnvironmentChange();
+      this.updateTemplatesOnEnvironmentChange();
     }.observes('model.%%DRIVERNAME%%Config.environmentName'),
+
+    updateTiersOnEnvironmentChange: function () {
+      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/tiers', function (listTiersResponse) {
+        if (listTiersResponse.errors) {
+          this.set('errors', listTiersResponse.errors.map(function (err) {
+            return err.message;
+          }));
+          return;
+        }
+        var tiers = listTiersResponse.data;
+        this.set('networkOptions', tiers.map(function (tier) {
+            return {
+               name: tier.name,
+               value: tier.id
+            };
+         }));
+      }.bind(this));
+    },
+
+    updateComputeOfferingsOnServiceCodeChange: function () {
+      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/computeofferings', function (listComputeOfferingsResponse) {
+        if (listComputeOfferingsResponse.errors) {
+          this.set('errors', listComputeOfferingsResponse.errors.map(function (err) {
+            return err.message;
+          }));
+          return;
+        }
+        var offerings = listComputeOfferingsResponse.data;
+        this.set('computeOfferingOptions', offerings.map(function (offering) {
+            return {
+               name: offering.name,
+               value: offering.id
+            };
+         }));
+      }.bind(this));
+   }.observes('model.%%DRIVERNAME%%Config.serviceCode'),
+
+    updateDiskOfferingsOnServiceCodeChange: function () {
+      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/diskofferings', function (listDiskOfferingsResponse) {
+        if (listDiskOfferingsResponse.errors) {
+          this.set('errors', listDiskOfferingsResponse.errors.map(function (err) {
+            return err.message;
+          }));
+          return;
+        }
+        var offerings = listDiskOfferingsResponse.data;
+        this.set('diskOfferingOptions', offerings.map(function (offering) {
+            return {
+               name: offering.name,
+               value: offering.id
+            };
+         }));
+      }.bind(this));
+    }.observes('model.%%DRIVERNAME%%Config.serviceCode'),
+
+    updateTemplatesOnEnvironmentChange: function () {
+      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/templates', function (listTemplatesResponse) {
+        if (listTemplatesResponse.errors) {
+          this.set('errors', listTemplatesResponse.errors.map(function (err) {
+            return err.message;
+          }));
+          return;
+        }
+        var templates = listTemplatesResponse.data.filter(function(template) {
+           return template.isPublic && template.name.toLowerCase().indexOf('windows') == -1;
+        }).sortBy('name');
+
+        // TODO filter not compatible templates
+
+        this.set('templateOptions', templates.map(function (template) {
+            return {
+               name: template.name,
+               value: template.id
+            };
+         }));
+
+         this.set('defaultUsernamesByTemplate', templates.reduce(function (m, t) {
+           m[t.id] = t.defaultUsername;
+           return m;
+         }, {}));
+      }.bind(this));
+    },
+
+    updateSSHUserOnTemplateChange: function () {
+      var defaultUsername = this.get('defaultUsernamesByTemplate')[this.get('model.%%DRIVERNAME%%Config.template')];
+      if (defaultUsername) {
+         this.set('model.%%DRIVERNAME%%Config.sshUser', defaultUsername);
+      }
+   }.observes('model.%%DRIVERNAME%%Config.template'),
 
     apiCall: function (endpoint, callback) {
       var url = this.get('model.%%DRIVERNAME%%Config.apiUrl') + endpoint,

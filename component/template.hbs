@@ -39,7 +39,7 @@
       </div>
 
       <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">Network</label>
+        <label class="form-control-static">Tier</label>
       </div>
       <div class="col-sm-12 col-md-3">
       {{new-select
@@ -90,7 +90,13 @@
         <label class="form-control-static">Compute Offering</label>
       </div>
       <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.computeOffering }}
+         {{new-select
+           class="form-control"
+           content=computeOfferingOptions
+           optionLabelPath='name'
+           optionValuePath='value'
+           value=model.%%DRIVERNAME%%Config.computeOffering
+         }}
       </div>
 
       <div class="col-sm-12 col-md-1 form-label">
@@ -120,7 +126,13 @@
         <label class="form-control-static">Additional Disk (optional)</label>
       </div>
       <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.additionalDiskOffering }}
+         {{new-select
+           class="form-control"
+           content=diskOfferingOptions
+           optionLabelPath='name'
+           optionValuePath='value'
+           value=model.%%DRIVERNAME%%Config.additionalDiskOffering
+         }}
       </div>
 
       <div class="col-sm-12 col-md-1 form-label">
