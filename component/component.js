@@ -87,7 +87,7 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
     }.observes('model.%%DRIVERNAME%%Config.environmentName'),
 
     updateTiersOnEnvironmentChange: function () {
-      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/tiers', function (listTiersResponse) {
+      this.apiCall(this.getServicesApiEndpoint('tiers'), function (listTiersResponse) {
         if (listTiersResponse.errors) {
           this.set('errors', listTiersResponse.errors.map(function (err) {
             return err.message;
@@ -102,11 +102,14 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
                group: tier.vpcName
             };
          }));
+         if (this.get('networkOptions').length > 0) {
+           this.set('model.%%DRIVERNAME%%Config.networkId', this.get('networkOptions')[0].value);
+         }
       }.bind(this));
     },
 
     updateComputeOfferingsOnServiceCodeChange: function () {
-      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/computeofferings', function (listComputeOfferingsResponse) {
+      this.apiCall(this.getServicesApiEndpoint('computeofferings'), function (listComputeOfferingsResponse) {
         if (listComputeOfferingsResponse.errors) {
           this.set('errors', listComputeOfferingsResponse.errors.map(function (err) {
             return err.message;
@@ -120,29 +123,34 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
                value: offering.id
             };
          }));
+         if (this.get('computeOfferingOptions').length > 0) {
+           this.set('model.%%DRIVERNAME%%Config.computeOffering', this.get('computeOfferingOptions')[0].value);
+         }
       }.bind(this));
    }.observes('model.%%DRIVERNAME%%Config.serviceCode'),
 
     updateDiskOfferingsOnServiceCodeChange: function () {
-      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/diskofferings', function (listDiskOfferingsResponse) {
+      this.apiCall(this.getServicesApiEndpoint('diskofferings'), function (listDiskOfferingsResponse) {
         if (listDiskOfferingsResponse.errors) {
           this.set('errors', listDiskOfferingsResponse.errors.map(function (err) {
             return err.message;
           }));
           return;
         }
-        var offerings = listDiskOfferingsResponse.data;
-        this.set('diskOfferingOptions', offerings.map(function (offering) {
+        var offeringOptions = listDiskOfferingsResponse.data.map(function (offering) {
             return {
                name: offering.name,
                value: offering.id
             };
-         }));
+         });
+         offeringOptions.push({name:"No additional disk", value:""})
+         this.set('diskOfferingOptions', offeringOptions);
+         this.set('model.%%DRIVERNAME%%Config.diskOffering', this.get('diskOfferingOptions')[0].value);
       }.bind(this));
     }.observes('model.%%DRIVERNAME%%Config.serviceCode'),
 
     updateTemplatesOnEnvironmentChange: function () {
-      this.apiCall('/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/templates', function (listTemplatesResponse) {
+      this.apiCall(this.getServicesApiEndpoint('templates'), function (listTemplatesResponse) {
         if (listTemplatesResponse.errors) {
           this.set('errors', listTemplatesResponse.errors.map(function (err) {
             return err.message;
@@ -151,20 +159,24 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
         }
         var templates = listTemplatesResponse.data.filter(function(template) {
            return template.name.toLowerCase().indexOf('windows') == -1;
-        }).sortBy('isPublic','name');
+        });
 
         this.set('templateOptions', templates.map(function (template) {
             return {
                name: template.name,
                value: template.id,
-               group: template.isPublic ? 'Standard':'Environment'
+               group: template.isPublic ? 'Standard':'User defined'
             };
-         }));
+         }).sortBy('group','name'));
 
          this.set('defaultUsernamesByTemplate', templates.reduce(function (m, t) {
            m[t.id] = t.defaultUsername;
            return m;
          }, {}));
+
+         if (this.get('templateOptions').length > 0) {
+           this.set('model.%%DRIVERNAME%%Config.template', this.get('templateOptions')[0].value);
+         }
       }.bind(this));
     },
 
@@ -175,7 +187,7 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
       }
    }.observes('model.%%DRIVERNAME%%Config.template'),
 
-    apiCall: function (endpoint, callback) {
+   apiCall: function (endpoint, callback) {
       var url = this.get('model.%%DRIVERNAME%%Config.apiUrl') + endpoint,
           xhr = new XMLHttpRequest();
       xhr.addEventListener('load', function () {
@@ -185,6 +197,10 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
       xhr.setRequestHeader('MC-Api-Key', this.get('model.%%DRIVERNAME%%Config.apiKey'));
       xhr.setRequestHeader('Content-Type', 'application/json');
       xhr.send();
-    }
+   },
+
+   getServicesApiEndpoint: function(entity) {
+         return '/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' +  this.get('model.%%DRIVERNAME%%Config.environmentName') + '/' + entity;
+   }
   });
 });
