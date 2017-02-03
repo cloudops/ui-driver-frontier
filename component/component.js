@@ -98,7 +98,8 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
         this.set('networkOptions', tiers.map(function (tier) {
             return {
                name: tier.name,
-               value: tier.id
+               value: tier.id,
+               group: tier.vpcName
             };
          }));
       }.bind(this));
@@ -149,15 +150,14 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
           return;
         }
         var templates = listTemplatesResponse.data.filter(function(template) {
-           return template.isPublic && template.name.toLowerCase().indexOf('windows') == -1;
-        }).sortBy('name');
-
-        // TODO filter not compatible templates
+           return template.name.toLowerCase().indexOf('windows') == -1;
+        }).sortBy('isPublic','name');
 
         this.set('templateOptions', templates.map(function (template) {
             return {
                name: template.name,
-               value: template.id
+               value: template.id,
+               group: template.isPublic ? 'Standard':'Environment'
             };
          }));
 

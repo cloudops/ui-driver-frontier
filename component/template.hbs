@@ -6,15 +6,15 @@
 
     <div class="row">
       <div class="col-sm-12 col-md-2 form-label">
-        <label class="form-control-static">API Key</label>
+        <label class="form-control-static">API Key*</label>
       </div>
       <div class="col-sm-12 col-md-10">
-        {{ input type="password" class="form-control" value=model.%%DRIVERNAME%%Config.apiKey }}
+        {{ input type="password" class="form-control" value=model.%%DRIVERNAME%%Config.apiKey placeholder="Your cloud.ca API Key"}}
       </div>
     </div>
 
     <div class="footer-actions">
-      <button {{ action "nextPage" }} class="btn btn-primary">Next: Configure instance</button>
+      <button {{ action "nextPage" }} class="btn btn-primary" disabled={{not model.%%DRIVERNAME%%Config.apiKey}}>Next: Configure instance</button>
       <button {{ action "cancel" }} class="btn btn-link">{{ t "generic.cancel" }}</button>
     </div>
   {{else}}
@@ -47,6 +47,7 @@
         content=networkOptions
         optionLabelPath='name'
         optionValuePath='value'
+        optionGroupPath='group'
         value=model.%%DRIVERNAME%%Config.networkId
       }}
       </div>
@@ -64,8 +65,10 @@
         {{new-select
           class="form-control"
           content=templateOptions
+          prompt='Select a template:'
           optionLabelPath='name'
           optionValuePath='value'
+          optionGroupPath='group'
           value=model.%%DRIVERNAME%%Config.template
         }}
       </div>
