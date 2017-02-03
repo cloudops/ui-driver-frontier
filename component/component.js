@@ -25,27 +25,30 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
 
     // Add custom validation beyond what can be done from the config API schema
     validate: function () {
-      // Get generic API validation errors
       this._super();
       var errors = this.get('errors') || [];
 
-      // Add more specific errors
-
-      // Check something and add an error entry if it fails:
-      if (parseInt(this.get('model.%%DRIVERNAME%%Config.size'), 10) < 1024) {
-        errors.push('Size must be at least 1024 MB');
+      var name = this.get('model.hostname');
+      if (name) {
+        if (name.length > 62) {
+          // Max is actually 63, but host naming goes alllll the way to 11, so we'll play it safe.
+          errors.push('Name can be a maximum of 62 characters long.');
+        } else if (!/^[a-zA-Z]/.test(name) || !/[a-zA-Z0-9]$/.test(name)) {
+          errors.push('Name must start with a letter and end with a letter or digit.');
+        } else if (!/^[-a-zA-Z0-9]+$/.test(name)) {
+          errors.push('Name can only contain letters, digits and hyphens.');
+        }
       }
 
-      // Set the array of errors for display,
-      // and return true if saving should continue.
-      this.set('errors', errors || []);
+      this.set('errors', errors);
       return !errors.length;
     },
 
     firstPage: true,
-    servicesByEnvironmentName: {},
+    environmentsById: {},
     actions: {
       nextPage: function () {
+        this.set('errors', []);
         this.apiCall('/environments', function (environments) {
           if (environments.errors) {
             this.set('errors', environments.errors.map(function (err) {
@@ -58,20 +61,21 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
             return env.serviceConnection.type === 'CloudCA';
           });
 
-          this.set('servicesByEnvironmentName', envs.reduce(function (m, e) {
-            m[e.name] = e.serviceConnection.serviceCode;
+          this.environmentsById = envs.reduce(function (m, e) {
+            m[e.id] = e;
             return m;
-          }, {}));
+          }, {});
 
           this.set('environmentOptions', envs
             .map(function (env) {
               return {
-                name: env.serviceConnection.serviceCode + ' / ' + env.name,
-                value: env.name
+                name: env.name,
+                value: env.id,
+                group: env.serviceConnection.serviceCode
               };
             }));
           if (this.get('environmentOptions').length > 0) {
-             this.set('model.%%DRIVERNAME%%Config.environmentName', this.get('environmentOptions')[0].value);
+             this.set('model.%%DRIVERNAME%%Config.environmentId', this.get('environmentOptions')[0].value);
           }
           this.set('firstPage', false);
         }.bind(this));
@@ -79,12 +83,13 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
     },
 
     environmentChange: function () {
-      var serviceCode = this.servicesByEnvironmentName[this.get('model.%%DRIVERNAME%%Config.environmentName')];
-      this.set('model.%%DRIVERNAME%%Config.serviceCode', serviceCode);
+      var env = this.environmentsById[this.get('model.%%DRIVERNAME%%Config.environmentId')];
+      this.set('model.%%DRIVERNAME%%Config.environmentName', env.name);
+      this.set('model.%%DRIVERNAME%%Config.serviceCode', env.serviceConnection.serviceCode);
 
       this.updateTiersOnEnvironmentChange();
       this.updateTemplatesOnEnvironmentChange();
-    }.observes('model.%%DRIVERNAME%%Config.environmentName'),
+    }.observes('model.%%DRIVERNAME%%Config.environmentId'),
 
     updateTiersOnEnvironmentChange: function () {
       this.apiCall(this.getServicesApiEndpoint('tiers'), function (listTiersResponse) {
