@@ -84,11 +84,13 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
 
     environmentChange: function () {
       var env = this.environmentsById[this.get('model.%%DRIVERNAME%%Config.environmentId')];
-      this.set('model.%%DRIVERNAME%%Config.environmentName', env.name);
-      this.set('model.%%DRIVERNAME%%Config.serviceCode', env.serviceConnection.serviceCode);
+      if (env) {
+        this.set('model.%%DRIVERNAME%%Config.environmentName', env.name);
+        this.set('model.%%DRIVERNAME%%Config.serviceCode', env.serviceConnection.serviceCode);
 
-      this.updateTiersOnEnvironmentChange();
-      this.updateTemplatesOnEnvironmentChange();
+        this.updateTiersOnEnvironmentChange();
+        this.updateTemplatesOnEnvironmentChange();
+      }
     }.observes('model.%%DRIVERNAME%%Config.environmentId'),
 
     updateTiersOnEnvironmentChange: function () {
