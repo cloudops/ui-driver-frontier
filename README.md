@@ -1,6 +1,16 @@
 # ui-driver-cloudca
-cloud.ca Rancher UI driver for the cloud.ca docker-machine driver
+cloud.ca Rancher UI driver for the [cloud.ca docker-machine driver](https://github.com/cloud-ca/docker-machine-driver-cloudca)
 
+# Configuring in Rancher
+
+* Add a Machine Driver in Rancher (Admin tab -> Settings -> Machine Drivers)
+  * Name: cloud.ca
+  * Download URL: The URL for the cloud.ca docker-machine **_Linux 64-bit_** driver (copy the URL from the [Releases page](https://github.com/cloud-ca/docker-machine-driver-cloudca/releases/latest)).
+  * Custom UI URL: The URL to the cloud.ca custom Rancher UI **_component.js_** file (copy the URL from the [Releases page](https://github.com/cloud-ca/ui-driver-cloudca/releases/latest)).
+* Wait for the driver to become "Active"
+* Go to Infrastructure -> Hosts -> Add Host, your driver and custom UI should show up.
+
+# Developing the custom UI
 ## Setup
 
 * `npm install`
@@ -22,11 +32,3 @@ For other users to see your driver, you need to build it and host the output on 
 * Copy the contents of the `dist` directory onto a webserver.
   * If your Rancher is configured to use HA or SSL, the server must also be available via HTTPS.
 
-## Using
-
-* Add a Machine Driver in Rancher (Admin tab -> Settings -> Machine Drivers)
-  * Name: Your `DRIVERNAME` (see above).
-  * Download URL: The URL for the driver binary (e.g. `https://github.com/mycompany/docker-machine-mycompany/releases/download/v1.0.0/docker-machine-driver-mycompany-v1.0.0-linux-amd64.tar.gz`)
-  * Custom UI URL: The URL you uploaded the `dist` folder to, e.g. `https://github.com/mycompany/ui-driver-mycompany/releases/download/v1.0.0/component.js`)
-* Wait for the driver to become "Active"
-* Go to Infrastructure -> Hosts -> Add Host, your driver and custom UI should show up.
