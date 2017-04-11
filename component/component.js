@@ -88,25 +88,25 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
         this.set('model.%%DRIVERNAME%%Config.environmentName', env.name);
         this.set('model.%%DRIVERNAME%%Config.serviceCode', env.serviceConnection.serviceCode);
 
-        this.updateTiersOnEnvironmentChange();
+        this.updateNetworksOnEnvironmentChange();
         this.updateTemplatesOnEnvironmentChange();
       }
     }.observes('model.%%DRIVERNAME%%Config.environmentId'),
 
-    updateTiersOnEnvironmentChange: function () {
-      this.apiCall(this.getServicesApiEndpoint('tiers'), function (listTiersResponse) {
-        if (listTiersResponse.errors) {
-          this.set('errors', listTiersResponse.errors.map(function (err) {
+    updateNetworksOnEnvironmentChange: function () {
+      this.apiCall(this.getServicesApiEndpoint('networks'), function (listNetworksResponse) {
+        if (listNetworksResponse.errors) {
+          this.set('errors', listNetworksResponse.errors.map(function (err) {
             return err.message;
           }));
           return;
         }
-        var tiers = listTiersResponse.data;
-        this.set('networkOptions', tiers.map(function (tier) {
+        var networks = listNetworksResponse.data;
+        this.set('networkOptions', networks.map(function (network) {
             return {
-               name: tier.name,
-               value: tier.id,
-               group: tier.vpcName
+               name: network.name,
+               value: network.id,
+               group: network.vpcName
             };
          }));
          if (this.get('networkOptions').length > 0) {
