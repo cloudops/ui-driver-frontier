@@ -1,3 +1,9 @@
 .machine-driver.%%DRIVERNAME%% {
   background-image: url('cloudca.svg');
 }
+
+@media (min-width: 960px) {
+  .root-disk-slider {
+    margin-top: 10px;
+  }
+}

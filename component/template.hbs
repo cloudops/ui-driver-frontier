@@ -3,7 +3,14 @@
     <div class="over-hr r-mb20">
       <span>credentials</span>
     </div>
-
+    <div class="row">
+      <div class="col-sm-12 col-md-2 form-label">
+        <label class="form-control-static">API url</label>
+      </div>
+      <div class="col-sm-12 col-md-10">
+        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.apiUrl placeholder="Your cloud.ca API url"}}
+      </div>
+    </div>
     <div class="row">
       <div class="col-sm-12 col-md-2 form-label">
         <label class="form-control-static">API Key*</label>
@@ -25,7 +32,7 @@
     </div>
 
     <div class="row form-group">
-      <div class="col-sm-12 col-md-1 form-label">
+      <div class="col-sm-12 col-md-2 form-label">
         <label class="form-control-static">Environment</label>
       </div>
       <div class="col-sm-12 col-md-3">
@@ -39,7 +46,7 @@
         }}
       </div>
 
-      <div class="col-sm-12 col-md-1 form-label">
+      <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
         <label class="form-control-static">Network</label>
       </div>
       <div class="col-sm-12 col-md-3">
@@ -59,7 +66,7 @@
     </div>
 
     <div class="row form-group">
-      <div class="col-sm-12 col-md-1 form-label">
+      <div class="col-sm-12 col-md-2 form-label">
         <label class="form-control-static">Template</label>
       </div>
       <div class="col-sm-12 col-md-3">
@@ -73,23 +80,16 @@
         }}
       </div>
 
-      <div class="col-sm-12 col-md-1 form-label">
+      <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
         <label class="form-control-static">SSH User</label>
       </div>
       <div class="col-sm-12 col-md-3">
         {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.sshUser }}
       </div>
-
-      <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">Use Private IP</label>
-      </div>
-      <div class="col-sm-12 col-md-3 form-control-static">
-        {{ input type="checkbox" checked=model.%%DRIVERNAME%%Config.usePrivateIp }}
-      </div>
     </div>
 
     <div class="row form-group">
-      <div class="col-sm-12 col-md-1 form-label">
+      <div class="col-sm-12 col-md-2 form-label">
         <label class="form-control-static">Compute Offering</label>
       </div>
       <div class="col-sm-12 col-md-3">
@@ -100,6 +100,12 @@
            optionValuePath='value'
            value=model.%%DRIVERNAME%%Config.computeOffering
          }}
+      </div>
+      <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
+        <label class="form-control-static">Use Private IP</label>
+      </div>
+      <div class="col-sm-12 col-md-3 form-control-static">
+        {{ input type="checkbox" checked=model.%%DRIVERNAME%%Config.usePrivateIp }}
       </div>
 <!--
       <div class="col-sm-12 col-md-1 form-label">
@@ -124,9 +130,23 @@
     <div class="over-hr r-mt20 r-mb20">
       <span>storage</span>
     </div>
-
+    {{#if templateResizable}}
+      <div class="row form-group">
+        <div class="col-sm-12 col-md-2 form-label">
+          <label class="form-control-static">Root Disk Size (optional)</label>
+        </div>
+        <div class="col-sm-12 col-md-10 root-disk-slider">
+          <div class="col-sm-2 col-md-1">
+            {{model.%%DRIVERNAME%%Config.rootDiskSizeInGb}}
+          </div>
+          <div class="col-sm-10 col-md-8">
+            {{input-slider value=model.%%DRIVERNAME%%Config.rootDiskSizeInGb valueMin=minSizeInGb valueMax=maxSizeInGb step=stepSizeInGb}}
+          </div>
+        </div>
+      </div>
+    {{/if}}
     <div class="row form-group">
-      <div class="col-sm-12 col-md-1 form-label">
+      <div class="col-sm-12 col-md-2 col-md-1 form-label">
         <label class="form-control-static">Additional Disk (optional)</label>
       </div>
       <div class="col-sm-12 col-md-3">
