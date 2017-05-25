@@ -165,7 +165,7 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
           return;
         }
         var templates = listTemplatesResponse.data.filter(function(template) {
-           return template.name.toLowerCase().indexOf('windows') == -1;
+           return template.name.toLowerCase().indexOf('windows') == -1 && template.name.toLowerCase().indexOf('centos 6') == -1;
         });
 
         this.set('templateOptions', templates.map(function (template) {
