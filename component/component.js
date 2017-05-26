@@ -58,7 +58,7 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
           }
 
           var envs = environments.data.filter(function (env) {
-            return env.serviceConnection.type === 'CloudCA';
+            return env.serviceConnection.type.toLowerCase() === 'cloudca';
           });
 
           this.environmentsById = envs.reduce(function (m, e) {
@@ -164,15 +164,19 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
           }));
           return;
         }
+        var removeTemplateRegex = /windows|centos 6/i;
         var templates = listTemplatesResponse.data.filter(function(template) {
-           return template.name.toLowerCase().indexOf('windows') == -1;
+           return !template.name.match(removeTemplateRegex);
         });
 
         this.set('templateOptions', templates.map(function (template) {
             return {
                name: template.name,
                value: template.id,
-               group: template.isPublic ? 'Standard':'User defined'
+               group: template.isPublic ? 'Standard':'User defined',
+               resizable: template.resizable,
+               maxSizeInGb: template.maxSizeInGb,
+               stepSizeInGb: template.stepSizeInGb
             };
          }).sortBy('group','name'));
 
@@ -192,6 +196,25 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
       if (defaultUsername) {
          this.set('model.%%DRIVERNAME%%Config.sshUser', defaultUsername);
       }
+   }.observes('model.%%DRIVERNAME%%Config.template'),
+
+   updateResizableOnTemplateChange: function() {
+      var templateOptions = this.get('templateOptions');
+      var selectedTemplateId = this.get("model.%%DRIVERNAME%%Config.template");
+      var selectedTemplate = templateOptions.findBy('value', selectedTemplateId) || templateOptions[0];
+      this.set('templateResizable', selectedTemplate.resizable);
+      this.set('maxSizeInGb', selectedTemplate.maxSizeInGb);
+      this.set('stepSizeInGb', selectedTemplate.stepSizeInGb);
+      var templateSizeInGb = selectedTemplate.size / Math.pow(1024, 3);
+      var stepSize = selectedTemplate.stepSizeInGb,
+          aligned = templateSizeInGb % stepSize === 0,
+          minSizeInGb = stepSize * (Math.floor(templateSizeInGb / stepSize) + (aligned ? 0 : 1));
+      this.set('minSizeInGb', minSizeInGb);
+      var currentSize = this.get('model.%%DRIVERNAME%%Config.rootDiskSizeInGb');
+      if(currentSize < minSizeInGb) {
+        this.set('model.%%DRIVERNAME%%Config.rootDiskSizeInGb', minSizeInGb);
+      }
+      this.rerender();
    }.observes('model.%%DRIVERNAME%%Config.template'),
 
    apiCall: function (endpoint, callback) {
