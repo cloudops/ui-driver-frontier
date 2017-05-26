@@ -164,8 +164,9 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
           }));
           return;
         }
+        var removeTemplateRegex = /windows|centos 6/i;
         var templates = listTemplatesResponse.data.filter(function(template) {
-           return template.name.toLowerCase().indexOf('windows') == -1 && template.name.toLowerCase().indexOf('centos 6') == -1;
+           return !template.name.match(removeTemplateRegex);
         });
 
         this.set('templateOptions', templates.map(function (template) {
@@ -198,24 +199,22 @@ define('ui/components/machine/driver-%%DRIVERNAME%%/component', ['exports', 'emb
    }.observes('model.%%DRIVERNAME%%Config.template'),
 
    updateResizableOnTemplateChange: function() {
-      var templateOptions = this.get('templateOptions')
-      var selectedTemplateId = this.get("model.%%DRIVERNAME%%Config.template")
-      var selectedTemplate = templateOptions.findBy('value', selectedTemplateId)
-      selectedTemplate = selectedTemplate ? selectedTemplate : templateOptions[0]
-      this.set('templateResizable', selectedTemplate.resizable)
-      this.set('maxSizeInGb', selectedTemplate.maxSizeInGb)
-      this.set('stepSizeInGb', selectedTemplate.stepSizeInGb)
-      var templateSizeInGb = selectedTemplate.size / 1024^3
-      var minSizeInGb = selectedTemplate.stepSizeInGb
-      while(minSizeInGb < templateSizeInGb) {
-        minSizeInGb += selectedTemplate.stepSizeInGb
-      }
-      this.set('minSizeInGb', minSizeInGb)
-      var currentSize = this.get('model.%%DRIVERNAME%%Config.rootDiskSizeInGb')
+      var templateOptions = this.get('templateOptions');
+      var selectedTemplateId = this.get("model.%%DRIVERNAME%%Config.template");
+      var selectedTemplate = templateOptions.findBy('value', selectedTemplateId) || templateOptions[0];
+      this.set('templateResizable', selectedTemplate.resizable);
+      this.set('maxSizeInGb', selectedTemplate.maxSizeInGb);
+      this.set('stepSizeInGb', selectedTemplate.stepSizeInGb);
+      var templateSizeInGb = selectedTemplate.size / Math.pow(1024, 3);
+      var stepSize = selectedTemplate.stepSizeInGb,
+          aligned = templateSizeInGb % stepSize === 0,
+          minSizeInGb = stepSize * (Math.floor(templateSizeInGb / stepSize) + (aligned ? 0 : 1));
+      this.set('minSizeInGb', minSizeInGb);
+      var currentSize = this.get('model.%%DRIVERNAME%%Config.rootDiskSizeInGb');
       if(currentSize < minSizeInGb) {
-        this.set('model.%%DRIVERNAME%%Config.rootDiskSizeInGb', minSizeInGb)
+        this.set('model.%%DRIVERNAME%%Config.rootDiskSizeInGb', minSizeInGb);
       }
-      this.rerender()
+      this.rerender();
    }.observes('model.%%DRIVERNAME%%Config.template'),
 
    apiCall: function (endpoint, callback) {
