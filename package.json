@@ -1,15 +1,15 @@
 {
-  "name": "ui-driver-skel",
+  "name": "ui-driver-cloudca",
   "version": "0.0.2",
-  "description": "Skeleton Rancher UI driver for custom docker-machine drivers",
+  "description": "cloud.ca Rancher UI driver for the cloud.ca docker-machine driver",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/rancher/ui-driver-skel.git"
+    "url": "git+https://github.com/cloud-ca/ui-driver-cloudca.git"
   },
-  "author": "Rancher Labs, Inc.",
-  "license": "Apache-2.0",
+  "author": "cloud.ca",
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/rancher/rancher/issues"
+    "url": "https://github.com/cloud-ca/ui-driver-cloudca/issues"
   },
   "scripts": {
     "start": "./node_modules/.bin/gulp server",
@@ -17,7 +17,7 @@
     "build": "./node_modules/.bin/gulp build",
     "upload": "./scripts/upload"
   },
-  "homepage": "https://github.com/rancher/ui-driver-skel#readme",
+  "homepage": "https://github.com/cloud-ca/ui-driver-cloudca#readme",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-plugin-add-module-exports": "^0.3.2",
