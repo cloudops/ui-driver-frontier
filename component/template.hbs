@@ -1,59 +1,175 @@
 <section class="horizontal-form">
-  {{#accordion-list showExpandAll=false as | al expandFn |}}
-    {{!-- This line shows the driver title which you don't have to change it --}}
-    <div class="over-hr mb-20"><span>{{driverOptionsTitle}}</span></div>
-
-    {{!-- An example input option --}}
-    <div class="row box mt-20">
-      <h4>Instance Options</h4>
-      <div class="row">
-        <div class="col span-2 col-inline">
-          <label>CPUs</label>
-        </div>
-
-        <div class="col span-1">
-          {{config.cpuCount}}
-        </div>
-        <div class="col span-3">
-          {{input-slider value=config.cpuCount valueMin=1 valueMax=32}}
-        </div>
-
-        <div class="col span-2 col-inline">
-          <label>Memory Size</label>
-        </div>
-        <div class="col span-4">
-          <div class="input-group">
-            {{input-integer min=1 value=config.memorySize classNames="form-control"}}
-            <div class="input-group-addon bg-default">MB</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {{!-- This following contains the Name, Labels and Engine Options fields --}}
-    <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>
-
-    {{form-name-description
-      model=model
-      nameRequired=true
-    }}
-
-    {{form-user-labels
-      initialLabels=labelResource.labels
-      setLabels=(action 'setLabels')
-      expandAll=expandAll
-      expand=(action expandFn)
-    }}
-
-    {{form-engine-opts
-      machine=model
-      showEngineUrl=showEngineUrl
-    }}
-  {{/accordion-list}}
-
+  {{!-- This line shows the driver title which you don't have to change it --}}
+  <div class="over-hr"><span>{{driverOptionsTitle}}</span></div>
   {{!-- This component shows errors produced by validate() in the component --}}
   {{top-errors errors=errors}}
 
-  {{!-- This component shows the Create and Cancel buttons --}}
+  {{#if apiKeyPage}}
+    {{#accordion-list showExpandAll=false as | al expandFn | }}
+      {{#accordion-list-item 
+        title="1. Authentication"
+        detail="API key to be used when creating the nodes"
+        expandOnInit=true
+        expand=(action expandFn)
+      }}
+      <div class="row inline-form">        
+        <div class="col span-2 col-inline">
+          <label class="acc-label">API Key</label>
+        </div>
+        <div class="col span-10">
+          {{ input type="password" class="form-control" value=config.apiKey placeholder="Your cloud.ca API Key"}}
+        </div>
+      </div>
+      {{/accordion-list-item}}
+      <div class="footer-actions">
+        <button {{ action "goToEnvsPage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Choose environment</button>
+        {{cancel}}
+      </div>
+    {{/accordion-list}}
+  {{else if envPage}}
+    {{#accordion-list showExpandAll=false as | al expandFn | }}
+      {{#accordion-list-item 
+        title="2. Environment"
+        detail="Environment where the nodes will be deployed"
+        expandOnInit=true
+        expand=(action expandFn)
+      }}
+      <div class="row inline-form">        
+        <div class="col span-2 col-inline">
+          <label class="acc-label">Environment</label>
+        </div>
+        <div class="col span-8">
+          {{new-select
+            class="form-control"
+            content=environmentOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.environmentId
+          }}
+        </div>
+      </div>
+      {{/accordion-list-item}}
+      <div class="footer-actions">
+        <button {{ action "goToNetworksPage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Choose network</button>
+        <button {{ action "goToApiKeyPage" }} class="btn">Back to environments</button>
+      </div>
+    {{/accordion-list}}
+  {{else if computePage}}
+    <div class="row">        
+      <div class="col span-12">
+        <label class="acc-label">Environment : {{config.serviceCode}} / {{config.environmentName}}</label>
+      </div>
+    </div>
+    {{#accordion-list showExpandAll=false as | al expandFn | }}
+      {{#accordion-list-item 
+        title="3. Compute details"
+        detail="Network where the nodes will be deployed"
+        expandOnInit=true
+        expand=(action expandFn)
+      }}
+      <div class="row inline-form">        
+        <div class="col span-2 col-inline">
+          <label class="acc-label">Network</label>
+        </div>
+        <div class="col span-8">
+          {{new-select
+            class="form-control"
+            content=networkOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.networkId
+          }}
+        </div>
+      </div>
+      <div class="row inline-form">        
+        <div class="col span-2 col-inline">
+          <label class="acc-label">Template</label>
+        </div>
+        <div class="col span-8">
+          {{new-select
+            class="form-control"
+            content=templateOptions
+            optionLabelPath='name'
+            optionValuePath='value
+            optionGroupPath='group''
+            value=config.imageId
+          }}
+        </div>
+      </div>
+      {{/accordion-list-item}}
+      <div class="footer-actions">
+        <button {{ action "goToNodeTemplatePage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Networking</button>
+        <button {{ action "goToEnvsPage" }} class="btn">Back to environments</button>
+      </div>
+    {{/accordion-list}}
+  {{else if nodeTemplatePage}}
+  {{!-- {{else if computePage}}
+      <div class="over-hr r-mt20 r-mb20">
+        <span>instance</span>
+      </div>
+
+      <div class="row form-group">
+        <div class="col-sm-12 col-md-2 form-label">
+          <label class="form-control-static">Template</label>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          {{new-select
+            class="form-control"
+            content=templateOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.template
+          }}
+        </div>
+
+        <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
+          <label class="form-control-static">SSH User</label>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          {{ input type="text" class="form-control" value=config.sshUser }}
+        </div>
+      </div>
+
+      <div class="row form-group">
+        <div class="col-sm-12 col-md-2 form-label">
+          <label class="form-control-static">Compute Offering</label>
+        </div>
+        <div class="col-sm-12 col-md-3">
+          {{new-select
+            class="form-control"
+            content=computeOfferingOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            value=config.computeOffering
+          }}
+        </div>
+        </div>
+  {{/if}} --}}
+{{#accordion-list showExpandAll=false as | al expandFn |}}
+  {{!-- This following contains the Name, Labels and Engine Options fields --}}
+  <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>
+
+  {{form-name-description
+    model=model
+    nameRequired=true
+  }}
+
+  {{form-user-labels
+    initialLabels=labelResource.labels
+    setLabels=(action 'setLabels')
+    expandAll=expandAll
+    expand=(action expandFn)
+  }}
+
+  {{form-engine-opts
+    machine=model
+    showEngineUrl=showEngineUrl
+  }}
+  {{/accordion-list}}
+    {{!-- This component shows the Create and Cancel buttons --}}
   {{save-cancel save="save" cancel="cancel"}}
+  {{/if}}
 </section>
