@@ -23,15 +23,15 @@ const defaultBase = 1024;
 
 /*!!!!!!!!!!!DO NOT CHANGE START!!!!!!!!!!!*/
 export default Ember.Component.extend(NodeDriver, {
-  driverName: '%%DRIVERNAME%%',
-  config: alias('model.%%DRIVERNAME%%Config'),
+  driverName: 'cloudca',
+  config: alias('model.cloudcaConfig'),
   app: service(),
 
   init() {
     // This does on the fly template compiling, if you mess with this :cry:
     const decodedLayout = window.atob(LAYOUT);
     const template = Ember.HTMLBars.compile(decodedLayout, {
-      moduleName: 'nodes/components/driver-%%DRIVERNAME%%/template'
+      moduleName: 'nodes/components/driver-cloudca/template'
     });
     set(this, 'layout', template);
 
@@ -44,12 +44,12 @@ export default Ember.Component.extend(NodeDriver, {
   bootstrap: function () {
     // bootstrap is called by rancher ui on 'init', you're better off doing your setup here rather then the init function to ensure everything is setup correctly
     let config = get(this, 'globalStore').createRecord({
-      type: '%%DRIVERNAME%%Config',
+      type: 'cloudcaConfig',
       apiUrl : "https://api.cloud.ca/v1",
       usePrivateIp : true,
       sshUser: "cca-user",
     });
-    set(this, 'model.%%DRIVERNAME%%Config', config);
+    set(this, 'model.cloudcaConfig', config);
   },
 
   // Add custom validation beyond what can be done from the config API schema
@@ -119,17 +119,19 @@ export default Ember.Component.extend(NodeDriver, {
               group: env.serviceConnection.serviceCode
             };
           }));
-        if (this.get('environmentOptions').length > 0) {
-          this.set('model.%%DRIVERNAME%%Config.environmentId', this.get('environmentOptions')[0].value);
+          var eId = this.get('model.cloudcaConfig.environmentId'); 
+          var eId2= this.config.environmentId; 
+          if (!eId && !eId2 && this.get('environmentOptions').length > 0) {
+          this.set('model.cloudcaConfig.environmentId', this.get('environmentOptions')[0].value);
         } 
       }.bind(this));
     },
     goToComputePage: function () {
       this.setPage(2);
-      var env = this.environmentsById[this.get('model.%%DRIVERNAME%%Config.environmentId')];
+      var env = this.environmentsById[this.get('model.cloudcaConfig.environmentId')];
       if (env) {
-        this.set('model.%%DRIVERNAME%%Config.environmentName', env.name);
-        this.set('model.%%DRIVERNAME%%Config.serviceCode', env.serviceConnection.serviceCode);
+        this.set('model.cloudcaConfig.environmentName', env.name);
+        this.set('model.cloudcaConfig.serviceCode', env.serviceConnection.serviceCode);
         this.loadNetworks();
         this.loadTemplates();
         this.loadComputeOfferings();
@@ -157,8 +159,8 @@ export default Ember.Component.extend(NodeDriver, {
           group: network.vpcName
         };
       }));
-      if (this.get('networkOptions').length > 0) {
-        this.set('model.%%DRIVERNAME%%Config.networkId', this.get('networkOptions')[0].value);
+      if (!this.get('model.cloudcaConfig.networkId') && this.get('networkOptions').length > 0) {
+        this.set('model.cloudcaConfig.networkId', this.get('networkOptions')[0].value);
       }
     }.bind(this));
   },
@@ -178,8 +180,8 @@ export default Ember.Component.extend(NodeDriver, {
           value: offering.id
         };
       }));
-      if (this.get('computeOfferingOptions').length > 0) {
-        this.set('model.%%DRIVERNAME%%Config.computeOffering', this.get('computeOfferingOptions')[0].value);
+      if (!this.get('model.cloudcaConfig.computeOffering') && this.get('computeOfferingOptions').length > 0) {
+        this.set('model.cloudcaConfig.computeOffering', this.get('computeOfferingOptions')[0].value);
       }
     }.bind(this));
   },
@@ -203,7 +205,9 @@ export default Ember.Component.extend(NodeDriver, {
         value: ""
       })
       this.set('diskOfferingOptions', offeringOptions);
-      this.set('model.%%DRIVERNAME%%Config.diskOffering', this.get('diskOfferingOptions')[0].value);
+      if (!this.get('model.cloudcaConfig.diskOffering') && this.get('diskOfferingOptions').length > 0) {
+        this.set('model.cloudcaConfig.diskOffering', this.get('diskOfferingOptions')[0].value);
+      }
     }.bind(this));
   },
 
@@ -237,50 +241,24 @@ export default Ember.Component.extend(NodeDriver, {
       }, {}));
 
       if (this.get('templateOptions').length > 0) {
-        this.set('model.%%DRIVERNAME%%Config.template', this.get('templateOptions')[0].value);
+        this.set('model.cloudcaConfig.template', this.get('templateOptions')[0].value);
       }
     }.bind(this));
   },
 
-  // updateSSHUserOnTemplateChange: function () {
-  //   var defaultUsername = this.get('defaultUsernamesByTemplate')[this.get('model.%%DRIVERNAME%%Config.template')];
-  //   if (defaultUsername) {
-  //     this.set('model.%%DRIVERNAME%%Config.sshUser', defaultUsername);
-  //   }
-  // },
-
-  // updateResizableOnTemplateChange: function () {
-  //   var templateOptions = this.get('templateOptions');
-  //   var selectedTemplateId = this.get("model.%%DRIVERNAME%%Config.template");
-  //   var selectedTemplate = templateOptions.findBy('value', selectedTemplateId) || templateOptions[0];
-  //   this.set('templateResizable', selectedTemplate.resizable);
-  //   this.set('maxSizeInGb', selectedTemplate.maxSizeInGb);
-  //   this.set('stepSizeInGb', selectedTemplate.stepSizeInGb);
-  //   var templateSizeInGb = selectedTemplate.size / Math.pow(1024, 3);
-  //   var stepSize = selectedTemplate.stepSizeInGb,
-  //     aligned = templateSizeInGb % stepSize === 0,
-  //     minSizeInGb = stepSize * (Math.floor(templateSizeInGb / stepSize) + (aligned ? 0 : 1));
-  //   this.set('minSizeInGb', minSizeInGb);
-  //   var currentSize = this.get('model.%%DRIVERNAME%%Config.rootDiskSizeInGb');
-  //   if (currentSize < minSizeInGb) {
-  //     this.set('model.%%DRIVERNAME%%Config.rootDiskSizeInGb', minSizeInGb);
-  //   }
-  //   this.rerender();
-  // },
-
   apiCall: function (endpoint, callback) {
-    var url = this.get('model.%%DRIVERNAME%%Config.apiUrl') + endpoint,
+    var url = this.get('model.cloudcaConfig.apiUrl') + endpoint,
     xhr = new XMLHttpRequest();
     xhr.addEventListener('load', function () {
       callback(JSON.parse(this.responseText));
     });
     xhr.open('get', url, true);
-    xhr.setRequestHeader('MC-Api-Key', this.get('model.%%DRIVERNAME%%Config.apiKey'));
+    xhr.setRequestHeader('MC-Api-Key', this.get('model.cloudcaConfig.apiKey'));
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send();
   },
 
   getServicesApiEndpoint: function (entity) {
-    return '/services/' + this.get('model.%%DRIVERNAME%%Config.serviceCode') + '/' + this.get('model.%%DRIVERNAME%%Config.environmentName') + '/' + entity;
+    return '/services/' + this.get('model.cloudcaConfig.serviceCode') + '/' + this.get('model.cloudcaConfig.environmentName') + '/' + entity;
   }
 });

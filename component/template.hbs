@@ -23,6 +23,7 @@
       {{/accordion-list-item}}
       <div class="footer-actions">
         <button {{ action "goToEnvsPage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Choose environment</button>
+        <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
       </div>
     {{/accordion-list}}
   {{else if envPage}}
@@ -52,6 +53,7 @@
       <div class="footer-actions">
         <button {{ action "goToComputePage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Compute details</button>
         <button {{ action "goToApiKeyPage" }} class="btn">Back</button>
+        <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
       </div>
     {{/accordion-list}}
   {{else if computePage}}
@@ -67,11 +69,9 @@
         expandOnInit=true
         expand=(action expandFn)
       }}
-      <div class="row inline-form">        
-        <div class="col span-2 col-inline">
+      <div class="row">        
+        <div class="col span-6">
           <label class="acc-label">Network</label>
-        </div>
-        <div class="col span-8">
           {{new-select
             class="form-control"
             content=networkOptions
@@ -82,11 +82,9 @@
           }}
         </div>
       </div>
-      <div class="row inline-form">        
-        <div class="col span-2 col-inline">
+      <div class="row">        
+        <div class="col span-6">
           <label class="acc-label">Template</label>
-        </div>
-        <div class="col span-8">
           {{new-select
             class="form-control"
             content=templateOptions
@@ -96,12 +94,14 @@
             value=config.imageId
           }}
         </div>
-      </div>
-      <div class="row inline-form">        
-        <div class="col span-2 col-inline">
-          <label class="acc-label">Compute offering</label>
+        <div class="col span-6">
+          <label class="acc-label">SSH username</label>
+          {{ input type="text" class="form-control" value=config.sshUser }}
         </div>
-        <div class="col span-8">
+      </div>
+      <div class="row">        
+        <div class="col span-6">
+          <label class="acc-label">Size</label>
           {{new-select
             class="form-control"
             content=computeOfferingOptions
@@ -111,12 +111,8 @@
             value=config.computeOfferingId
           }}
         </div>
-      </div>
-      <div class="row inline-form">        
-        <div class="col span-2 col-inline">
-          <label class="acc-label">Additional disk offering</label>
-        </div>
-        <div class="col span-8">
+        <div class="col span-6">
+          <label class="acc-label">Additional volume</label>
           {{new-select
             class="form-control"
             content=diskOfferingOptions
@@ -124,13 +120,11 @@
             optionValuePath='value'
             optionGroupPath='group'
             value=config.diskOfferingId
-          }}
+          }}          
         </div>
       </div>
       {{/accordion-list-item}}
-      <div class="footer-actions">
-        <button {{ action "goToEnvsPage" }} class="btn">Back to environments</button>
-      </div>
+
     {{/accordion-list}}
     {{#accordion-list showExpandAll=false as | al expandFn |}}
     {{!-- This following contains the Name, Labels and Engine Options fields --}}
@@ -153,6 +147,10 @@
       showEngineUrl=showEngineUrl
     }}
     {{/accordion-list}}
-    {{save-cancel save="save" cancel="cancel"}}
+    <div class="footer-actions">
+      <button {{ action "save" }} class="btn bg-primary">Create</button>
+      <button {{ action "goToEnvsPage" }} class="btn">Back</button>
+      <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
+    </div>
     {{/if}}
 </section>
