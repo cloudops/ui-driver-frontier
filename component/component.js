@@ -49,7 +49,7 @@ export default Ember.Component.extend(NodeDriver, {
       usePrivateIp : true,
       sshUser: "cca-user",
     });
-    set(this, 'config', config);
+    set(this, 'model.%%DRIVERNAME%%Config', config);
   },
 
   // Add custom validation beyond what can be done from the config API schema
@@ -135,6 +135,9 @@ export default Ember.Component.extend(NodeDriver, {
         this.loadComputeOfferings();
         this.loadDiskOfferings();
       }
+    },
+    goToNodeTemplatePage: function(){
+      this.setPage(3);
     },
   },
 
