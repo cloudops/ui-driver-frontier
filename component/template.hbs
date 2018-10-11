@@ -45,7 +45,7 @@
             optionLabelPath='name'
             optionValuePath='value'
             optionGroupPath='group'
-            value=config.environmentId
+            value=config.environmentCodeName
           }}
         </div>
       </div>
@@ -84,33 +84,42 @@
       </div>
       <div class="row">        
         <div class="col span-6">
-          <label class="acc-label">Template</label>
-          {{new-select
-            class="form-control"
-            content=templateOptions
-            optionLabelPath='name'
-            optionValuePath='value'
-            optionGroupPath='group'
-            value=config.imageId
-          }}
-        </div>
-        <div class="col span-6">
-          <label class="acc-label">SSH username</label>
-          {{ input type="text" class="form-control" value=config.sshUser }}
-        </div>
-      </div>
-      <div class="row">        
-        <div class="col span-6">
           <label class="acc-label">Size</label>
           {{new-select
             class="form-control"
             content=computeOfferingOptions
             optionLabelPath='name'
             optionValuePath='value'
-            optionGroupPath='group'
-            value=config.computeOfferingId
+            value=config.computeOffering
+            action=onComputeOfferingChange
           }}
         </div>
+      </div>
+      {{#if showCustomComputeOffering}}
+        <div class="row">
+          <div class="col span-6">
+            <label class="acc-label">CPU count</label> 
+            {{new-select
+              class="form-control"
+              content=cpuOptions
+              optionLabelPath='name'
+              optionValuePath='value'
+              value=config.cpuCount
+            }}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">Memory</label> 
+            {{new-select
+              class="form-control"
+              content=memOptions
+              optionLabelPath='name'
+              optionValuePath='value'
+              value=config.memoryMb
+            }}
+          </div>
+        </div>
+      {{/if}}
+      <div class="row">
         <div class="col span-6">
           <label class="acc-label">Additional volume</label>
           {{new-select
@@ -119,38 +128,78 @@
             optionLabelPath='name'
             optionValuePath='value'
             optionGroupPath='group'
-            value=config.diskOfferingId
-          }}          
+            value=config.additionalDiskOffering
+            action=onDiskOfferingChange
+          }}
+        </div>
+      </div>
+      {{#if showCustomDiskOffering}}
+        <div class="row">
+          <label class="acc-label">Additional volume size</label> 
+          <div class="col span-12" style="padding: 0px 20px;">
+            {{config.additionalDiskSizeGb}} GB 
+            {{input-slider value=config.additionalDiskSizeGb valueMin=10 valueMax=1000 step=10}}
+          </div>
+        </div>
+      {{/if}}
+      <div class="row">        
+        <div class="col span-6">
+          <label class="acc-label">Template</label>
+          {{new-select
+            class="form-control"
+            content=templateOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.template
+            action=onTemplateChange
+          }}
+        </div>
+
+        <div class="col span-6">
+          <label class="acc-label">SSH username</label>
+          {{ input type="text" class="form-control" value=config.sshUser }}
         </div>
       </div>
       {{/accordion-list-item}}
 
     {{/accordion-list}}
-    {{#accordion-list showExpandAll=false as | al expandFn |}}
-    {{!-- This following contains the Name, Labels and Engine Options fields --}}
-    <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>
-
-    {{form-name-description
-      model=model
-      nameRequired=true
-    }}
-
-    {{form-user-labels
-      initialLabels=labelResource.labels
-      setLabels=(action 'setLabels')
-      expandAll=expandAll
-      expand=(action expandFn)
-    }}
-
-    {{form-engine-opts
-      machine=model
-      showEngineUrl=showEngineUrl
-    }}
-    {{/accordion-list}}
     <div class="footer-actions">
-      <button {{ action "save" }} class="btn bg-primary">Create</button>
+      <button {{ action "goToNodeTemplatePage" }} class="btn bg-primary">Next: Node template</button>
       <button {{ action "goToEnvsPage" }} class="btn">Back</button>
       <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
     </div>
+    {{else if nodeTemplate}}
+      <div class="row">        
+        <div class="col span-12">
+          <label class="acc-label">Environment : {{config.serviceCode}} / {{config.environmentName}}</label>
+        </div>
+      </div>
+      {{#accordion-list showExpandAll=false as | al expandFn |}}
+        {{!-- This following contains the Name, Labels and Engine Options fields --}}
+        <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>
+
+        {{form-name-description
+          model=model
+          nameRequired=true
+        }}
+
+        {{form-user-labels
+          initialLabels=labelResource.labels
+          setLabels=(action 'setLabels')
+          expandAll=expandAll
+          expand=(action expandFn)
+        }}
+
+        {{form-engine-opts
+          machine=model
+          showEngineUrl=showEngineUrl
+        }}
+      {{/accordion-list}}
+      <div class="footer-actions">
+        <button {{ action "save" }} class="btn bg-primary">Create</button>
+        <button {{ action "goToComputePage" }} class="btn">Back</button>
+        <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
+      </div>
     {{/if}}
 </section>
