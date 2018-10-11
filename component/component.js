@@ -61,12 +61,12 @@ export default Ember.Component.extend(NodeDriver, {
     set(this, 'onComputeOfferingChange', co => {
       if (co.custom) {
         self.set("showCustomComputeOffering", true);
-        self.set("model.cloudcaConfig.cpuCount", 1);
-        self.set("model.cloudcaConfig.memoryMb", 1024);
+        self.set("config.cpuCount", 1);
+        self.set("config.memoryMb", 2048);
       } else {
         self.set("showCustomComputeOffering", false);
-        self.set("model.cloudcaConfig.cpuCount", null);
-        self.set("model.cloudcaConfig.memoryMb", null);
+        self.set("config.cpuCount", null);
+        self.set("config.memoryMb", null);
       }
     });
 
@@ -275,8 +275,9 @@ export default Ember.Component.extend(NodeDriver, {
         }));
         return;
       }
-      var offerings = listComputeOfferingsResponse.data;
-      this.set('computeOfferingOptions', offerings.map(o => {
+      var offerings = listComputeOfferingsResponse.data.filter(o => o.memoryInMB >= 2048 || o.custom);
+      this.set('computeOfferingOptions', offerings
+      .map(o => {
         return {
           name: o.name,
           value: o.id,
@@ -288,9 +289,9 @@ export default Ember.Component.extend(NodeDriver, {
         let off = offerings[0];
         this.set('model.cloudcaConfig.computeOffering', off.id);
         if(off.custom){
-          self.set("showCustomComputeOffering", true);
-          self.set("model.cloudcaConfig.cpuCount", 1);
-          self.set("model.cloudcaConfig.memoryMb", 1024);
+          this.set("showCustomComputeOffering", true);
+          this.set("model.cloudcaConfig.cpuCount", 1);
+          this.set("model.cloudcaConfig.memoryMb", 2048);
         }
       }
     }.bind(this));
@@ -321,8 +322,8 @@ export default Ember.Component.extend(NodeDriver, {
         let off = offeringOptions[0];
         this.set('model.cloudcaConfig.additionalDiskOffering', off.value);
         if(off.customSize){
-          self.set("showCustomDiskOffering", true);
-          self.set("model.cloudcaConfig.additionalDiskSizeGb", 20);
+          this.set("showCustomDiskOffering", true);
+          this.set("model.cloudcaConfig.additionalDiskSizeGb", 20);
         }
       }
     }.bind(this));
@@ -341,7 +342,7 @@ export default Ember.Component.extend(NodeDriver, {
         return !template.name.match(removeTemplateRegex);
       });
 
-      this.set('templateOptions', templates.map(function (template) {
+      let templateOpts = templates.map(function (template) {
         return {
           name: template.name,
           value: template.id,
@@ -351,10 +352,12 @@ export default Ember.Component.extend(NodeDriver, {
           stepSizeInGb: template.stepSizeInGb,
           sshUser: template.defaultUsername
         };
-      }).sortBy('group', 'name'));
-      if (!this.config.template && templates.length > 0) {
-        this.set('model.cloudcaConfig.template', templates[0].id);
+      }).sortBy('group', 'name');
+      if (!this.config.template && templateOpts.length > 0) {
+        this.set('model.cloudcaConfig.template', templateOpts[0].value);
       }
+
+      this.set('templateOptions', templateOpts);
     }.bind(this));
   },
 
