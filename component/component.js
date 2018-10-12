@@ -208,18 +208,20 @@ export default Ember.Component.extend(NodeDriver, {
           m[e.serviceConnection.serviceCode + e.name] = e;
           return m;
         }, {});
+        var envOpts = envs.map(function (env) {
+          return {
+            name: env.name,
+            value: env.serviceConnection.serviceCode + env.name,
+            group: env.serviceConnection.serviceCode
+          };
+        });
+        this.set('environmentOptions', envOpts);
 
-        this.set('environmentOptions', envs
-          .map(function (env) {
-            return {
-              name: env.name,
-              value: env.serviceConnection.serviceCode + env.name,
-              group: env.serviceConnection.serviceCode
-            };
-          }));
         //set env code name from env name and servicecode
         if (this.config.serviceCode && this.config.environmentName) {
           this.set('config.environmentCodeName', this.config.serviceCode + this.config.environmentName);
+        }else{
+          this.set('config.environmentCodeName', envOpts[0].value);
         }
         this.setPage(1);
       }.bind(this));
