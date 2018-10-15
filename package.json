@@ -1,13 +1,13 @@
 {
   "name": "ui-driver-cloudca",
-  "version": "0.0.2",
+  "version": "2.1.0",
   "description": "cloud.ca Rancher UI driver for the cloud.ca docker-machine driver",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cloud-ca/ui-driver-cloudca.git"
   },
   "author": "cloud.ca",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/cloud-ca/ui-driver-cloudca/issues"
   },
