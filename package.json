@@ -1,13 +1,13 @@
 {
   "name": "ui-driver-cloudca",
-  "version": "0.0.1",
+  "version": "2.1.0",
   "description": "cloud.ca Rancher UI driver for the cloud.ca docker-machine driver",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/cloud-ca/ui-driver-cloudca.git"
   },
   "author": "cloud.ca",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/cloud-ca/ui-driver-cloudca/issues"
   },
@@ -19,17 +19,21 @@
   },
   "homepage": "https://github.com/cloud-ca/ui-driver-cloudca#readme",
   "devDependencies": {
-    "del": "^2.2.0",
-    "gulp": "^3.9.1",
-    "gulp-clean": "^0.3.2",
-    "gulp-concat": "^2.6.0",
-    "gulp-connect": "^3.2.2",
-    "gulp-htmlbars-compiler": "0.0.2",
-    "gulp-jshint": "^2.0.0",
-    "gulp-replace": "^0.5.4",
-    "gulp-sourcemaps": "^1.6.0",
-    "gulp-wrap-amd": "^0.5.0",
-    "jshint": "^2.9.1",
-    "yargs": "^4.6.0"
+    "babel-core": "^6.26.3",
+    "babel-plugin-add-module-exports": "^0.3.2",
+    "babel-plugin-transform-es2015-modules-amd": "^6.24.1",
+    "babel-preset-env": "^1.7.0",
+    "del": "3.0.0",
+    "gulp": "3.9.1",
+    "gulp-babel": "^7.0.1",
+    "gulp-clean": "0.4.0",
+    "gulp-concat": "2.6.1",
+    "gulp-connect": "5.5.0",
+    "gulp-jshint": "2.1.0",
+    "gulp-replace": "0.6.1",
+    "gulp-sourcemaps": "2.6.4",
+    "jshint": "2.9.5",
+    "replace-string": "^1.1.0",
+    "yargs": "11.0.0"
   }
 }

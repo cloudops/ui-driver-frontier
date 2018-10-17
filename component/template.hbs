@@ -1,184 +1,205 @@
 <section class="horizontal-form">
-  {{#if firstPage}}
-    <div class="over-hr r-mb20">
-      <span>credentials</span>
-    </div>
+  {{!-- This line shows the driver title which you don't have to change it --}}
+  <div class="over-hr"><span>{{driverOptionsTitle}}</span></div>
+  {{!-- This component shows errors produced by validate() in the component --}}
+  {{top-errors errors=errors}}
 
-    <div class="row">
-      <div class="col-sm-12 col-md-2 form-label">
-        <label class="form-control-static">API Key*</label>
-      </div>
-      <div class="col-sm-12 col-md-10">
-        {{ input type="password" class="form-control" value=model.%%DRIVERNAME%%Config.apiKey placeholder="Your cloud.ca API Key"}}
-      </div>
-    </div>
-
-    <div class="footer-actions">
-      <button {{ action "nextPage" }} class="btn btn-primary" disabled={{not model.%%DRIVERNAME%%Config.apiKey}}>Next: Configure instance</button>
-      <button {{ action "cancel" }} class="btn btn-link">{{ t "generic.cancel" }}</button>
-    </div>
-  {{else}}
-    {{ partial "host/add-common" }}
-
-    <div class="over-hr r-mt20 r-mb20">
-      <span>deployment</span>
-    </div>
-
-    <div class="row form-group">
-      <div class="col-sm-12 col-md-2 form-label">
-        <label class="form-control-static">Environment</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-        {{new-select
-          class="form-control"
-          content=environmentOptions
-          optionLabelPath='name'
-          optionValuePath='value'
-          optionGroupPath='group'
-          value=model.%%DRIVERNAME%%Config.environmentId
-        }}
-      </div>
-
-      <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
-        <label class="form-control-static">Network</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-      {{new-select
-        class="form-control"
-        content=networkOptions
-        optionLabelPath='name'
-        optionValuePath='value'
-        optionGroupPath='group'
-        value=model.%%DRIVERNAME%%Config.networkId
+  {{#if apiKeyPage}}
+    {{#accordion-list showExpandAll=false as | al expandFn | }}
+      {{#accordion-list-item 
+        title="1. Authentication"
+        detail="API key to be used when creating the nodes"
+        expandOnInit=true
+        expand=(action expandFn)
       }}
+      <div class="row inline-form">        
+        <div class="col span-2 col-inline">
+          <label class="acc-label">API Key</label>
+        </div>
+        <div class="col span-10">
+          {{ input type="password" class="form-control" value=config.apiKey placeholder="Your cloud.ca API Key"}}
+        </div>
+      </div>
+      {{/accordion-list-item}}
+      <div class="footer-actions">
+        <button {{ action "goToEnvsPage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Choose environment</button>
+        <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
+      </div>
+    {{/accordion-list}}
+  {{else if envPage}}
+    {{#accordion-list showExpandAll=false as | al expandFn | }}
+      {{#accordion-list-item 
+        title="2. Environment"
+        detail="Environment where the nodes will be deployed"
+        expandOnInit=true
+        expand=(action expandFn)
+      }}
+      <div class="row inline-form">        
+        <div class="col span-2 col-inline">
+          <label class="acc-label">Environment</label>
+        </div>
+        <div class="col span-8">
+          {{new-select
+            class="form-control"
+            content=environmentOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.environmentCodeName
+          }}
+        </div>
+      </div>
+      {{/accordion-list-item}}
+      <div class="footer-actions">
+        <button {{ action "goToComputePage" }} class="btn bg-primary" disabled={{not config.apiKey}}>Next: Compute details</button>
+        <button {{ action "goToApiKeyPage" }} class="btn">Back</button>
+        <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
+      </div>
+    {{/accordion-list}}
+  {{else if computePage}}
+    <div class="row">        
+      <div class="col span-12">
+        <label class="acc-label">Environment : {{config.serviceCode}} / {{config.environmentName}}</label>
       </div>
     </div>
-
-    <div class="over-hr r-mt20 r-mb20">
-      <span>instance</span>
-    </div>
-
-    <div class="row form-group">
-      <div class="col-sm-12 col-md-2 form-label">
-        <label class="form-control-static">Template</label>
+    {{#accordion-list showExpandAll=false as | al expandFn | }}
+      {{#accordion-list-item 
+        title="3. Compute details"
+        detail="Configure the node's compute characteristics"
+        expandOnInit=true
+        expand=(action expandFn)
+      }}
+      <div class="row">        
+        <div class="col span-6">
+          <label class="acc-label">Network</label>
+          {{new-select
+            class="form-control"
+            content=networkOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.networkId
+          }}
+        </div>
       </div>
-      <div class="col-sm-12 col-md-3">
-        {{new-select
-          class="form-control"
-          content=templateOptions
-          optionLabelPath='name'
-          optionValuePath='value'
-          optionGroupPath='group'
-          value=model.%%DRIVERNAME%%Config.template
+      <div class="row">        
+        <div class="col span-6">
+          <label class="acc-label">Size</label>
+          {{new-select
+            class="form-control"
+            content=computeOfferingOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            value=config.computeOffering
+            action=onComputeOfferingChange
+          }}
+        </div>
+      </div>
+      {{#if showCustomComputeOffering}}
+        <div class="row">
+          <div class="col span-6">
+            <label class="acc-label">CPU count</label> 
+            {{new-select
+              class="form-control"
+              content=cpuOptions
+              optionLabelPath='name'
+              optionValuePath='value'
+              value=config.cpuCount
+            }}
+          </div>
+          <div class="col span-6">
+            <label class="acc-label">Memory</label> 
+            {{new-select
+              class="form-control"
+              content=memOptions
+              optionLabelPath='name'
+              optionValuePath='value'
+              value=config.memoryMb
+            }}
+          </div>
+        </div>
+      {{/if}}
+      <div class="row">
+        <div class="col span-6">
+          <label class="acc-label">Additional volume</label>
+          {{new-select
+            class="form-control"
+            content=diskOfferingOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.additionalDiskOffering
+            action=onDiskOfferingChange
+          }}
+        </div>
+      </div>
+      {{#if showCustomDiskOffering}}
+        <div class="row">
+          <label class="acc-label">Additional volume size</label> 
+          <div class="col span-12" style="padding: 0px 20px;">
+            {{config.additionalDiskSizeGb}} GB 
+            {{input-slider value=config.additionalDiskSizeGb valueMin=10 valueMax=1000 step=10}}
+          </div>
+        </div>
+      {{/if}}
+      <div class="row">        
+        <div class="col span-6">
+          <label class="acc-label">Template</label>
+          {{new-select
+            class="form-control"
+            content=templateOptions
+            optionLabelPath='name'
+            optionValuePath='value'
+            optionGroupPath='group'
+            value=config.template
+            action=onTemplateChange
+          }}
+        </div>
+
+        <div class="col span-6">
+          <label class="acc-label">SSH username</label>
+          {{ input type="text" class="form-control" value=config.sshUser }}
+        </div>
+      </div>
+      {{/accordion-list-item}}
+
+    {{/accordion-list}}
+    <div class="footer-actions">
+      <button {{ action "goToNodeTemplatePage" }} class="btn bg-primary">Next: Node template</button>
+      <button {{ action "goToEnvsPage" }} class="btn">Back</button>
+      <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
+    </div>
+    {{else if nodeTemplate}}
+      <div class="row">        
+        <div class="col span-12">
+          <label class="acc-label">Environment : {{config.serviceCode}} / {{config.environmentName}}</label>
+        </div>
+      </div>
+      {{#accordion-list showExpandAll=false as | al expandFn |}}
+        {{!-- This following contains the Name, Labels and Engine Options fields --}}
+        <div class="over-hr"><span>{{templateOptionsTitle}}</span></div>
+
+        {{form-name-description
+          model=model
+          nameRequired=true
         }}
-      </div>
 
-      <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
-        <label class="form-control-static">SSH User</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.sshUser }}
-      </div>
-    </div>
+        {{form-user-labels
+          initialLabels=labelResource.labels
+          setLabels=(action 'setLabels')
+          expandAll=expandAll
+          expand=(action expandFn)
+        }}
 
-    <div class="row form-group">
-      <div class="col-sm-12 col-md-2 form-label">
-        <label class="form-control-static">Compute Offering</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-         {{new-select
-           class="form-control"
-           content=computeOfferingOptions
-           optionLabelPath='name'
-           optionValuePath='value'
-           value=model.%%DRIVERNAME%%Config.computeOffering
-         }}
-      </div>
-      <div class="col-sm-12 col-md-2 col-md-offset-1 form-label">
-        <label class="form-control-static">Use Private IP</label>
-      </div>
-      <div class="col-sm-12 col-md-3 form-control-static">
-        {{ input type="checkbox" checked=model.%%DRIVERNAME%%Config.usePrivateIp }}
-      </div>
-<!--
-      <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">vCPUs</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-        {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.cpuCount }}
-      </div>
-
-      <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">RAM</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-        <div class="input-group">
-          {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.memoryMb }}
-          <span class="input-group-addon">MB</span>
-        </div>
-      </div>
-   -->
-    </div>
-
-    <div class="over-hr r-mt20 r-mb20">
-      <span>storage</span>
-    </div>
-    {{#if templateResizable}}
-      <div class="row form-group">
-        <div class="col-sm-12 col-md-2 form-label">
-          <label class="form-control-static">Root Disk Size (optional)</label>
-        </div>
-        <div class="col-sm-12 col-md-10 root-disk-slider">
-          <div class="col-sm-2 col-md-1">
-            {{model.%%DRIVERNAME%%Config.rootDiskSizeInGb}}
-          </div>
-          <div class="col-sm-10 col-md-8">
-            {{input-slider value=model.%%DRIVERNAME%%Config.rootDiskSizeInGb valueMin=minSizeInGb valueMax=maxSizeInGb step=stepSizeInGb}}
-          </div>
-        </div>
+        {{form-engine-opts
+          machine=model
+          showEngineUrl=showEngineUrl
+        }}
+      {{/accordion-list}}
+      <div class="footer-actions">
+        <button {{ action "save" }} class="btn bg-primary">Create</button>
+        <button {{ action "goToComputePage" }} class="btn">Back</button>
+        <button {{ action "cancel" }} class="btn bg-transparent">Cancel</button>
       </div>
     {{/if}}
-    <div class="row form-group">
-      <div class="col-sm-12 col-md-2 col-md-1 form-label">
-        <label class="form-control-static">Additional Disk (optional)</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-         {{new-select
-           class="form-control"
-           content=diskOfferingOptions
-           optionLabelPath='name'
-           optionValuePath='value'
-           value=model.%%DRIVERNAME%%Config.additionalDiskOffering
-         }}
-      </div>
-   <!--
-      <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">Size</label>
-      </div>
-
-      <div class="col-sm-12 col-md-3">
-        <div class="input-group">
-          {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.additionalDiskSizeGb }}
-          <span class="input-group-addon">GB</span>
-        </div>
-      </div>
-
-      <div class="col-sm-12 col-md-1 form-label">
-        <label class="form-control-static">Performance</label>
-      </div>
-      <div class="col-sm-12 col-md-3">
-        <div class="input-group">
-          {{ input type="text" class="form-control" value=model.%%DRIVERNAME%%Config.additionalDiskIops }}
-          <span class="input-group-addon">IOPS</span>
-        </div>
-      </div>
--->
-    </div>
-
-    {{ partial "host/add-options" }}
-    {{ save-cancel save="save" cancel="cancel" }}
-  {{/if}}
-
-{{!-- This component shows errors produced by validate() in the component --}}
-{{top-errors errors=errors}}
 </section>
