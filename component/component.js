@@ -288,6 +288,13 @@ export default Ember.Component.extend(NodeDriver, {
         };
       }));
 
+      if(this.config.computeOffering){
+        let co = offerings.find(co => co.id === this.config.computeOffering)
+        if (co && co.custom){
+          this.set("config.customCompute", true);
+        }
+      }
+
       if (!this.config.computeOffering && offerings.length > 0) {
         let off = offerings[0];
         this.set('model.cloudcaConfig.computeOffering', off.id);
