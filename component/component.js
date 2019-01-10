@@ -60,11 +60,11 @@ export default Ember.Component.extend(NodeDriver, {
 
     set(this, 'onComputeOfferingChange', co => {
       if (co.custom) {
-        self.set("showCustomComputeOffering", true);
+        self.set("config.customCompute", true);
         self.set("config.cpuCount", 1);
         self.set("config.memoryMb", 2048);
       } else {
-        self.set("showCustomComputeOffering", false);
+        self.set("config.customCompute", false);
         self.set("config.cpuCount", null);
         self.set("config.memoryMb", null);
       }
@@ -107,75 +107,76 @@ export default Ember.Component.extend(NodeDriver, {
   apiKeyPage: true,
   pages: ['apiKeyPage', 'envPage', 'computePage', 'nodeTemplate'],
 
-  cpuOptions: [{
+  cpuOptions: [
+    {
       name: '1 vCPU',
-      value: 1
+      value: '1'
     },
     {
       name: '2 vCPU',
-      value: 2
+      value: '2'
     },
     {
       name: '4 vCPU',
-      value: 4
+      value: '4'
     },
     {
       name: '6 vCPU',
-      value: 6
+      value: '6'
     },
     {
       name: '8 vCPU',
-      value: 8
+      value: '8'
     },
     {
       name: '10 vCPU',
-      value: 10
+      value: '10'
     },
     {
       name: '12 vCPU',
-      value: 12
+      value: '12'
     },
     {
       name: '16 vCPU',
-      value: 16
+      value: '16'
     },
   ],
 
   memOptions: [{
       name: '2 GB',
-      value: 1024 * 2
+      value: 1024 * 2 + ''
     },
     {
       name: '4 GB',
-      value: 1024 * 4
+      value: 1024 * 4 + ''
     },
     {
       name: '8 GB',
-      value: 1024 * 8
+      value: 1024 * 8 + ''
     },
     {
       name: '12 GB',
-      value: 1024 * 12
+      value: 1024 * 12 + ''
     },
     {
       name: '16 GB',
-      value: 1024 * 16
+      value: 1024 * 16 + ''
     },
     {
       name: '20 GB',
-      value: 1024 * 20
+      value: 1024 * 20 + ''
     },
     {
       name: '24 GB',
-      value: 1024 * 24
+      value: 1024 * 24 + ''
     },
     {
       name: '28 GB',
-      value: 1024 * 28
+      value: 1024 * 28 + ''
     },
     {
       name: '32 GB',
-      value: 1024 * 32
+      value: 1024 * 32 + ''
     },
   ],
 
@@ -291,7 +292,7 @@ export default Ember.Component.extend(NodeDriver, {
         let off = offerings[0];
         this.set('model.cloudcaConfig.computeOffering', off.id);
         if(off.custom){
-          this.set("showCustomComputeOffering", true);
+          this.set("model.cloudcaConfig.customCompute", true);
           this.set("model.cloudcaConfig.cpuCount", 1);
           this.set("model.cloudcaConfig.memoryMb", 2048);
         }
