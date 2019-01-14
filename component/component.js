@@ -59,24 +59,22 @@ export default Ember.Component.extend(NodeDriver, {
     });
 
     set(this, 'onComputeOfferingChange', co => {
+      self.set("config.customCompute", co.custom);
       if (co.custom) {
-        self.set("showCustomComputeOffering", true);
         self.set("config.cpuCount", 1);
         self.set("config.memoryMb", 2048);
       } else {
-        self.set("showCustomComputeOffering", false);
         self.set("config.cpuCount", null);
         self.set("config.memoryMb", null);
       }
     });
 
     set(this, 'onDiskOfferingChange', o => {
+      self.set("config.customDiskOffering", o.customSize);
       if (o.customSize) {
-        self.set("showCustomDiskOffering", true);
-        self.set("model.cloudcaConfig.additionalDiskSizeGb", 20);
+        self.set("config.additionalDiskSizeGb", 20);
       } else {
-        self.set("showCustomDiskOffering", false);
-        self.set("model.cloudcaConfig.additionalDiskSizeGb", null);
+        self.set("config.additionalDiskSizeGb", null);
       }
     });
   },
@@ -107,75 +105,76 @@ export default Ember.Component.extend(NodeDriver, {
   apiKeyPage: true,
   pages: ['apiKeyPage', 'envPage', 'computePage', 'nodeTemplate'],
 
-  cpuOptions: [{
+  cpuOptions: [
+    {
       name: '1 vCPU',
-      value: 1
+      value: '1'
     },
     {
       name: '2 vCPU',
-      value: 2
+      value: '2'
     },
     {
       name: '4 vCPU',
-      value: 4
+      value: '4'
     },
     {
       name: '6 vCPU',
-      value: 6
+      value: '6'
     },
     {
       name: '8 vCPU',
-      value: 8
+      value: '8'
     },
     {
       name: '10 vCPU',
-      value: 10
+      value: '10'
     },
     {
       name: '12 vCPU',
-      value: 12
+      value: '12'
     },
     {
       name: '16 vCPU',
-      value: 16
+      value: '16'
     },
   ],
 
   memOptions: [{
       name: '2 GB',
-      value: 1024 * 2
+      value: 1024 * 2 + ''
     },
     {
       name: '4 GB',
-      value: 1024 * 4
+      value: 1024 * 4 + ''
     },
     {
       name: '8 GB',
-      value: 1024 * 8
+      value: 1024 * 8 + ''
     },
     {
       name: '12 GB',
-      value: 1024 * 12
+      value: 1024 * 12 + ''
     },
     {
       name: '16 GB',
-      value: 1024 * 16
+      value: 1024 * 16 + ''
     },
     {
       name: '20 GB',
-      value: 1024 * 20
+      value: 1024 * 20 + ''
     },
     {
       name: '24 GB',
-      value: 1024 * 24
+      value: 1024 * 24 + ''
     },
     {
       name: '28 GB',
-      value: 1024 * 28
+      value: 1024 * 28 + ''
     },
     {
       name: '32 GB',
-      value: 1024 * 32
+      value: 1024 * 32 + ''
     },
   ],
 
@@ -227,10 +226,10 @@ export default Ember.Component.extend(NodeDriver, {
       }.bind(this));
     },
     goToComputePage: function () {
-      var env = this.environmentsByCodeName[this.get('model.cloudcaConfig.environmentCodeName')];
+      var env = this.environmentsByCodeName[this.get('config.environmentCodeName')];
       if (env) {
-        this.set('model.cloudcaConfig.environmentName', env.name);
-        this.set('model.cloudcaConfig.serviceCode', env.serviceConnection.serviceCode);
+        this.set('config.environmentName', env.name);
+        this.set('config.serviceCode', env.serviceConnection.serviceCode);
         this.loadNetworks();
         this.loadTemplates();
         this.loadComputeOfferings();
@@ -264,7 +263,7 @@ export default Ember.Component.extend(NodeDriver, {
         };
       }));
       if (!this.config.networkId && networks.length > 0) {
-        this.set('model.cloudcaConfig.networkId', networks[0].id);
+        this.set('config.networkId', networks[0].id);
       }
     }.bind(this));
   },
@@ -287,13 +286,20 @@ export default Ember.Component.extend(NodeDriver, {
         };
       }));
 
+      if(this.config.computeOffering){
+        let co = offerings.find(co => co.id === this.config.computeOffering)
+        if (co && co.custom){
+          this.set("config.customCompute", true);
+        }
+      }
+
       if (!this.config.computeOffering && offerings.length > 0) {
         let off = offerings[0];
-        this.set('model.cloudcaConfig.computeOffering', off.id);
+        this.set('config.computeOffering', off.id);
         if(off.custom){
-          this.set("showCustomComputeOffering", true);
-          this.set("model.cloudcaConfig.cpuCount", 1);
-          this.set("model.cloudcaConfig.memoryMb", 2048);
+          this.set("config.customCompute", true);
+          this.set("config.cpuCount", 1);
+          this.set("config.memoryMb", 2048);
         }
       }
     }.bind(this));
@@ -319,13 +325,21 @@ export default Ember.Component.extend(NodeDriver, {
         name: "No additional disk",
         value: ""
       })
+
+      if(this.config.additionalDiskOffering){
+        let co = offeringOptions.find(co => co.value === this.config.additionalDiskOffering)
+        if (co && co.customSize){
+          this.set("config.customDiskOffering", true);
+        }
+      }
+
       this.set('diskOfferingOptions', offeringOptions);
-      if (!this.config.diskOffering && offeringOptions.length > 0) {
+      if (!this.config.additionalDiskOffering && offeringOptions.length > 0) {
         let off = offeringOptions[0];
-        this.set('model.cloudcaConfig.additionalDiskOffering', off.value);
+        this.set('config.additionalDiskOffering', off.value);
+        this.set("config.customDiskOffering", off.customSize);
         if(off.customSize){
-          this.set("showCustomDiskOffering", true);
-          this.set("model.cloudcaConfig.additionalDiskSizeGb", 20);
+          this.set("config.additionalDiskSizeGb", 20);
         }
       }
     }.bind(this));
@@ -356,7 +370,7 @@ export default Ember.Component.extend(NodeDriver, {
         };
       }).sortBy('group', 'name');
       if (!this.config.template && templateOpts.length > 0) {
-        this.set('model.cloudcaConfig.template', templateOpts[0].value);
+        this.set('config.template', templateOpts[0].value);
       }
 
       this.set('templateOptions', templateOpts);
@@ -364,19 +378,19 @@ export default Ember.Component.extend(NodeDriver, {
   },
 
   apiCall: function (endpoint, callback) {
-    let url = this.get('model.cloudcaConfig.apiUrl') + endpoint;
+    let url = this.get('config.apiUrl') + endpoint;
     let xhr = new XMLHttpRequest();
     xhr.addEventListener('load', function () {
       callback(JSON.parse(this.responseText));
     });
     xhr.open('get', url, true);
-    xhr.setRequestHeader('MC-Api-Key', this.get('model.cloudcaConfig.apiKey'));
+    xhr.setRequestHeader('MC-Api-Key', this.get('config.apiKey'));
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.send();
   },
 
   getServicesApiEndpoint: function (entity) {
-    return '/services/' + this.get('model.cloudcaConfig.serviceCode') + '/' + this.get('model.cloudcaConfig.environmentName') + '/' + entity;
+    return '/services/' + this.get('config.serviceCode') + '/' + this.get('config.environmentName') + '/' + entity;
   }
 
 });
