@@ -255,6 +255,9 @@ export default Ember.Component.extend(NodeDriver, {
         return;
       }
       var networks = listNetworksResponse.data;
+      if (!this.config.networkId && networks.length > 0) {
+        this.set('config.networkId', networks[0].id);
+      }
       this.set('networkOptions', networks.map(function (network) {
         return {
           name: network.name,
@@ -262,9 +265,7 @@ export default Ember.Component.extend(NodeDriver, {
           group: network.vpcName
         };
       }));
-      if (!this.config.networkId && networks.length > 0) {
-        this.set('config.networkId', networks[0].id);
-      }
+
     }.bind(this));
   },
 
@@ -353,7 +354,7 @@ export default Ember.Component.extend(NodeDriver, {
         }));
         return;
       }
-      var removeTemplateRegex = /windows|centos 6/i;
+      var removeTemplateRegex = /windows|centos 6|debian/i;
       var templates = listTemplatesResponse.data.filter(function (template) {
         return !template.name.match(removeTemplateRegex);
       });
